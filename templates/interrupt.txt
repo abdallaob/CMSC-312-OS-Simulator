@@ -1,0 +1,4 @@
+Operation list  min cycles  max cycles  critical
+CALCULATE           5           30
+I/O                 5           10
+CALCULATE           1           5

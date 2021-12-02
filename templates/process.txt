@@ -1,6 +1,12 @@
-Operation list  min cycles  max cycles
-CALCULATE           5           100
+Operation list  min cycles  max cycles  critical
+CALCULATE           5           10
 CALCULATE           25          50
-I/O                 10          20
+FORK                1           2
+I/O                 10          20      start
 CALCULATE           5           20
 I/O                 15          25
+CALCULATE           20          50      end
+FORK                1           2
+CALCULATE           10          15
+I/O                 50          100
+CALCULATE           10          30
