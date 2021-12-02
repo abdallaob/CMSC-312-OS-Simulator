@@ -9,8 +9,12 @@ public class PCB {
     public String[] instructions;
     public int[] cycles;
     public int arrival;
+    public int critStart;
+    public int critEnd;
+    public int parentPID;
+    public int memory;
 
-    PCB(String name, ArrayList<String> instructions, ArrayList<Integer> cycles) {
+    PCB(String name, ArrayList<String> instructions, ArrayList<Integer> cycles, int critStart, int critEnd, int mem) {
         PID = nextPID++;
         state = 0;
         program_counter = 0;
@@ -24,5 +28,9 @@ public class PCB {
         this.cycles = new int[cycles.size()];
         for (int i = 0; i < cycles.size(); i++)
             this.cycles[i] = cycles.get(i);
+
+        this.critStart = critStart;
+        this.critEnd = critEnd;
+        this.memory = mem;
     }
 }
