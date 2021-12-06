@@ -1,5 +1,6 @@
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Random;
 
 public class app extends Thread {
@@ -19,7 +20,7 @@ public class app extends Thread {
     static int interrupt_counter = 0;
     static final int TOTAL_MEM = 1024;
     static int USED_MEM = 0;
-
+    static String SCHEME = "SHORTEST"; // "SHORTEST" OR "ROUNDROBIN" or "PRIORITY"
     static ProgramTemplate childTemplate;
     static ProgramTemplate InterruptTemplate;
 
@@ -32,6 +33,20 @@ public class app extends Thread {
         for (int i = 0; i < 120; i++)
             System.out.print(dash);
         System.out.println();
+    }
+
+    public static PCB RQNext() {
+        switch (SCHEME) {
+            case "PRIORITY":
+                return ready_queue.stream().max(Comparator.comparing(PCB::getPriority)).orElse(null);
+
+            case "SHORTEST":
+                return ready_queue.stream().min(Comparator.comparing(PCB::getTotalCycles)).orElse(null);
+
+            case "ROUNDROBIN":
+            default:
+                return ready_queue.pop();
+        }
     }
 
     private static void display() {
@@ -233,7 +248,7 @@ public class app extends Thread {
                 }
 
                 if (running[threadID] == null) {
-                    running[threadID] = ready_queue.isEmpty() ? null : ready_queue.pop();
+                    running[threadID] = ready_queue.isEmpty() ? null : RQNext();
                     if (running[threadID] != null)
                         running[threadID].state = 2;
 
@@ -250,7 +265,7 @@ public class app extends Thread {
                                 // block process by moving it to the back of ready queue
                                 running[threadID].state = 1;
                                 ready_queue.add(running[threadID]);
-                                running[threadID] = ready_queue.isEmpty() ? null : ready_queue.pop();
+                                running[threadID] = ready_queue.isEmpty() ? null : RQNext();
                                 if (running[threadID] != null)
                                     running[threadID].state = 2;
                                 continue;
@@ -275,7 +290,7 @@ public class app extends Thread {
                                 running[threadID].state = 3;
                                 wait_queue.add(running[threadID]);
                                 USED_MEM -= running[threadID].memory;
-                                running[threadID] = ready_queue.isEmpty() ? null : ready_queue.pop();
+                                running[threadID] = ready_queue.isEmpty() ? null : RQNext();
                                 if (running[threadID] != null)
                                     running[threadID].state = 2;
                                 continue;
@@ -295,7 +310,7 @@ public class app extends Thread {
                         running[threadID].state = 4;
                         exit_list.add(running[threadID]);
                         USED_MEM -= running[threadID].memory;
-                        running[threadID] = ready_queue.isEmpty() ? null : ready_queue.pop();
+                        running[threadID] = ready_queue.isEmpty() ? null : RQNext();
                         if (running[threadID] != null)
                             running[threadID].state = 2;
                         continue;
@@ -305,7 +320,7 @@ public class app extends Thread {
                 if (cycles % quantum == 0 && running != null) {
                     running[threadID].state = 1;
                     ready_queue.add(running[threadID]);
-                    running[threadID] = ready_queue.isEmpty() ? null : ready_queue.pop();
+                    running[threadID] = ready_queue.isEmpty() ? null : RQNext();
                     if (running[threadID] != null)
                         running[threadID].state = 2;
 
